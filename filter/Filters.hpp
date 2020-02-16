@@ -113,7 +113,14 @@ static auto isGrayscalePalette(File *in, int n = 256, int isRGBA = 0) -> bool {
   return (res >> 8) > 0;
 }
 
-// Detect blocks
+/**
+ * Detect blocks.
+ * @param in
+ * @param blockSize
+ * @param type
+ * @param info
+ * @return
+ */
 static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> BlockType {
   Shared *shared = Shared::getInstance();
   TextParserStateInfo *textParser = TextParserStateInfo::getInstance();
@@ -136,7 +143,7 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
   int soi = 0;
   int sof = 0;
   int sos = 0;
-  int app = 0; // For JPEG detection - position where found
+  int app = 0; /**< For JPEG detection - position where found */
 #ifdef USE_AUDIOMODEL
   int wavi = 0;
   int wavSize = 0;
@@ -145,13 +152,13 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
   int wavm = 0;
   int wavType = 0;
   int wavLen = 0;
-  int wavlist = 0; // For WAVE detection
+  int wavlist = 0; /**< For WAVE detection */
   int aiff = 0;
   int aiffm = 0;
-  int aiffs = 0; // For AIFF detection
+  int aiffs = 0; /**< For AIFF detection */
   int s3mi = 0;
   int s3Mno = 0;
-  int s3Mni = 0; // For S3M detection
+  int s3Mni = 0; /**< For S3M detection */
 #endif //  USE_AUDIOMODEL
   uint32_t bmpi = 0;
   uint32_t dibi = 0;
@@ -160,17 +167,17 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
   uint32_t bmpy = 0;
   uint32_t bmpof = 0;
   uint32_t bmps = 0;
-  uint32_t nColors = 0; // For BMP detection
+  uint32_t nColors = 0; /**< For BMP detection */
   int rgbi = 0;
   int rgbx = 0;
-  int rgby = 0; // For RGB detection
+  int rgby = 0; /**< For RGB detection */
   int tga = 0;
   int tgax = 0;
   int tgay = 0;
   int tgaz = 0;
   int tgat = 0;
   int tgaid = 0;
-  int tgamap = 0; // For TGA detection
+  int tgamap = 0; /**< For TGA detection */
   // ascii images are currently not supported
   int pgm = 0;
   int pgmComment = 0;
@@ -182,15 +189,15 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
   int pamatr = 0;
   int pamd = 0;
   int pgmdata = 0;
-  int pgmDataSize = 0; // For PBM, PGM, PPM, PAM detection
+  int pgmDataSize = 0; /**< For PBM, PGM, PPM, PAM detection */
   char pgmBuf[32];
   int cdi = 0;
   int cda = 0;
-  int cdm = 0; // For CD sectors detection
+  int cdm = 0; /**< For CD sectors detection */
   uint32_t cdf = 0;
   unsigned char zBuf[256 + 32] = {0};
   unsigned char zin[1U << 16] = {0};
-  unsigned char zout[1 << 16] = {0}; // For ZLIB stream detection
+  unsigned char zout[1 << 16] = {0}; /**< For ZLIB stream detection */
   int zBufPos = 0;
   int zZipPos = -1;
   int histogram[256] = {0};
@@ -203,14 +210,14 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
   int b64S = 0;
   int b64I = 0;
   int b64Line = 0;
-  int b64Nl = 0; // For base64 detection
+  int b64Nl = 0; /**< For base64 detection */
   int gif = 0;
   int gifa = 0;
   int gifi = 0;
   int gifw = 0;
   int gifc = 0;
   int gifb = 0;
-  int gifplt = 0; // For GIF detection
+  int gifplt = 0; /**< For GIF detection */
   static int gifGray = 0;
   int png = 0;
   int pngw = 0;
@@ -219,11 +226,11 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
   int pngType = 0;
   int pnggray = 0;
   int lastChunk = 0;
-  int nextChunk = 0; // For PNG detection
+  int nextChunk = 0; /**< For PNG detection */
   // For image detection
   static int deth = 0;
-  static int detd = 0; // detected header/data size in bytes
-  static BlockType dett; // detected block type
+  static int detd = 0; /**< detected header/data size in bytes */
+  static BlockType dett; /**< detected block type */
   if( deth != 0 ) {
     in->setpos(start + deth);
     deth = 0;
@@ -1506,11 +1513,16 @@ static void compressRecursive(File *in, const uint64_t blockSize, Encoder &en, S
   }
 }
 
-// Compress a file. Split fileSize bytes into blocks by type.
-// For each block, output
-// <type> <size> and call encode_X to convert to type X.
-// Test transform and compress.
-static void compressfile(const char *filename, uint64_t fileSize, Encoder &en, bool verbose) {
+/**
+ * Compress a file. Split fileSize bytes into blocks by type. For each block, output
+ * <type> <size> and call X::encode to convert to type X.
+ * Test transform and compress.
+ * @param filename
+ * @param fileSize
+ * @param en
+ * @param verbose
+ */
+static void compressFile(const char *filename, uint64_t fileSize, Encoder &en, bool verbose) {
   Shared *shared = Shared::getInstance();
   assert(en.getMode() == COMPRESS);
   assert(filename && filename[0]);

@@ -676,7 +676,7 @@ auto main_utf8(int argc, char **argv) -> int {
             fprintf(stderr, "\n%d/%d - Filename: %s (%" PRIu64 " bytes)\n", i + 1, numberOfFiles, fName, fSize);
           }
           printf("\n%d/%d - Filename: %s (%" PRIu64 " bytes)\n", i + 1, numberOfFiles, fName, fSize);
-          compressfile(fName, fSize, en, verbose);
+          compressFile(fName, fSize, en, verbose);
           totalSize += fSize + 4; //4: file size information
           contentSize += fSize;
         }
@@ -690,7 +690,7 @@ auto main_utf8(int argc, char **argv) -> int {
           fprintf(stderr, "\nFilename: %s (%" PRIu64 " bytes)\n", fName, fSize);
         }
         printf("\nFilename: %s (%" PRIu64 " bytes)\n", fName, fSize);
-        compressfile(fName, fSize, en, verbose);
+        compressFile(fName, fSize, en, verbose);
         totalSize += fSize + 4; //4: file size information
         contentSize += fSize;
       }
