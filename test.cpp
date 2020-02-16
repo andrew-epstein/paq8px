@@ -22,22 +22,24 @@ auto main(int argc, char *argv[]) -> int {
   uint64_t fSize = getFileSize(input.c_str());
   auto mf = new MixerFactory();
 
-//  constexpr int mixerInputs = 1 + MatchModel::MIXERINPUTS;// + NormalModel::MIXERINPUTS;
-//  constexpr int mixerContexts = MatchModel::MIXERCONTEXTS;// + NormalModel::MIXERCONTEXTS;
-//  constexpr int mixerContextSets = MatchModel::MIXERCONTEXTSETS;// + NormalModel::MIXERCONTEXTSETS;
+  constexpr int mixerInputs = 1 + MatchModel::MIXERINPUTS;// + NormalModel::MIXERINPUTS;
+  constexpr int mixerContexts = MatchModel::MIXERCONTEXTS;// + NormalModel::MIXERCONTEXTS;
+  constexpr int mixerContextSets = MatchModel::MIXERCONTEXTSETS;// + NormalModel::MIXERCONTEXTSETS;
 
-  auto m = mf->createMixer(2, 8, 1);
+//  auto m = mf->createMixer(mixerInputs, mixerContexts, mixerContextSets);
+auto m = mf->createMixer(CharGroupModel::MIXERINPUTS, 1, 1);
   m->setScaleFactor(1024, 128);
-  auto *modelStats = new ModelStats();
-  auto *models = new Models(modelStats);
-  ContextModel contextModel(modelStats, *models);
+//  auto *modelStats = new ModelStats();
+//  auto *models = new Models(modelStats);
+//  ContextModel contextModel(modelStats, *models);
 //  MatchModel matchModel(modelStats, shared->mem * 4);
 //  NormalModel normalModel(modelStats, shared->mem * 32);
 //  Audio16BitModel audio16BitModel(modelStats);
 //  TextModel textModel(modelStats, shared->mem * 16);
 //  WordModel wordModel(modelStats, shared->mem * 16);
+  CharGroupModel charGroupModel(shared->mem / 2);
   auto updateBroadcaster = UpdateBroadcaster::getInstance();
-  auto programChecker = ProgramChecker::getInstance();
+//  auto programChecker = ProgramChecker::getInstance();
 
   shared->reset();
   shared->buf.setSize(shared->mem * 8);
@@ -49,12 +51,11 @@ auto main(int argc, char *argv[]) -> int {
   for( int j = 0; j < fSize; ++j ) {
     c = f.getchar();
     for( int i = 7; i >= 0; --i ) {
-      auto p = contextModel.p();
+//      auto p = contextModel.p();
+      charGroupModel.mix(*m);
 //      matchModel.mix(*m);
-//      m->add(-2000);
-//      m->add(2000);
-//      m->set(shared->bitPosition, 1);
-//      auto p = m->p();
+      m->set(0, 0);
+      auto p = m->p();
 //      results[position] = p;
       y = (c >> i) & 1U;
       static FILE *dbg = fopen("log.txt", "wb");

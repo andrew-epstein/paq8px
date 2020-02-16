@@ -8,26 +8,13 @@
 #include "../SmallStationaryContextMap.hpp"
 #include "../StationaryMap.hpp"
 #include "RecordModel.hpp"
+#include "ImageModel.hpp"
 #include <cmath>
-
-static inline auto paeth(uint8_t const W, uint8_t const N, uint8_t const NW) -> uint8_t {
-  int p = W + N - NW;
-  int pW = abs(p - static_cast<int>(W));
-  int pN = abs(p - static_cast<int>(N));
-  int pNW = abs(p - static_cast<int>(NW));
-  if( pW <= pN && pW <= pNW ) {
-    return W;
-  }
-  if( pN <= pNW ) {
-    return N;
-  }
-  return NW;
-}
 
 /**
  * Model for filtered (PNG) or unfiltered 24/32-bit image data
  */
-class Image24BitModel {
+class Image24BitModel : ImageModel {
 private:
     static constexpr int nSM0 = 18;
     static constexpr int nSM1 = 76;

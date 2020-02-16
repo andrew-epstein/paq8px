@@ -66,7 +66,7 @@ private:
     void detectContent(XMLContent *content);
 
 public:
-    static constexpr int MIXERINPUTS = nCM * (ContextMap::MIXERINPUTS); //20
+    static constexpr int MIXERINPUTS = nCM * (ContextMap::MIXERINPUTS); /**< 20 */
     static constexpr int MIXERCONTEXTS = 0;
     static constexpr int MIXERCONTEXTSETS = 0;
     explicit XMLModel(uint64_t size);

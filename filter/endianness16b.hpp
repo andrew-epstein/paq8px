@@ -8,7 +8,7 @@
 
 class EndiannessFilter : public Filter {
 public:
-    void encode(File *in, File *out, uint64_t size, int  /*info*/, int & /*headerSize*/) override {
+    int encode(File *in, File *out, uint64_t size, int  /*info*/, int & /*headerSize*/) override {
       for( uint64_t i = 0, l = size >> 1U; i < l; i++ ) {
         uint8_t b = in->getchar();
         out->putChar(in->getchar());
@@ -17,6 +17,7 @@ public:
       if((size & 1U) > 0 ) {
         out->putChar(in->getchar());
       }
+      return 1;
     }
 
     auto decode(File * /*in*/, File *out, FMode fMode, uint64_t size, uint64_t &diffFound) -> uint64_t override {

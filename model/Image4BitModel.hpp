@@ -9,11 +9,12 @@
 #include "../Random.hpp"
 #include "../RingBuffer.hpp"
 #include "../StateMap.hpp"
+#include "ImageModel.hpp"
 
 /**
  * Model for 4-bit image data
  */
-class Image4BitModel {
+class Image4BitModel : ImageModel {
 private:
     static constexpr int S = 14; /**< number of contexts */
     Shared *shared = Shared::getInstance();

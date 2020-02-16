@@ -2,19 +2,19 @@
 #define PAQ8PX_LZWDICTIONARY_HPP
 
 #include "../file/File.hpp"
-#include "LZWEntry.hpp"
+#include "LzwEntry.hpp"
 #include <cstdint>
 
-class LZWDictionary {
+class LzwDictionary {
 private:
     static constexpr int hashSize = 9221;
-    LZWentry dictionary[4096] {};
+    LzWentry dictionary[4096] {};
     short table[hashSize] {};
     uint8_t buffer[4096] {};
 
 public:
     int index;
-    LZWDictionary();
+    LzwDictionary();
     void reset();
     auto findEntry(int prefix, int suffix) -> int;
     void addEntry(int prefix, int suffix, int offset = -1);

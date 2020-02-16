@@ -39,8 +39,9 @@ void dump(const char* msg, int p) {
       images[idx].app -= length; \
   }
 
-// Detect invalid JPEG data.  The proper response is to silently
-// fall back to a non-JPEG model.
+/**
+ * Detect invalid JPEG data.  The proper response is to silently fall back to a non-JPEG model.
+ */
 #define JASSERT(x) \
   if (! (x)) { \
     /*  printf("JPEG error at %d, line %d: %s\n", pos, __LINE__, #x); */ \
@@ -57,26 +58,26 @@ struct HUF {
 // coefficient type Tc (0=DC, 1=AC), table Th (0-3), length m+1 (m=0-15)
 
 struct JPEGImage {
-    uint32_t offset, // offset of SOI marker
-            jpeg, // 1 if JPEG is header detected, 2 if image data
-            nextJpeg, // updated with jpeg on next byte boundary
-            app, // Bytes remaining to skip in this marker
-            sof, sos, data, // pointers to buf
-            htSize; // number of pointers in ht
-    int ht[8]; // pointers to Huffman table headers
-    uint8_t qTable[256]; // table
-    int qMap[10]; // block -> table number
+    uint32_t offset, /**< offset of SOI marker */
+            jpeg, /**< 1 if JPEG is header detected, 2 if image data */
+            nextJpeg, /**< updated with jpeg on next byte boundary */
+            app, /**< Bytes remaining to skip in this marker */
+            sof, sos, data, /**< pointers to buf */
+            htSize; /**< number of pointers in ht */
+    int ht[8]; /**< pointers to Huffman table headers */
+    uint8_t qTable[256]; /**< table */
+    int qMap[10]; /**< block -> table number */
 };
 
 /**
  * Model JPEG. Return 1 if a JPEG file is detected or else 0.
  * Only the baseline and 8 bit extended Huffman coded DCT modes are
- * supported.  The model partially decodes the JPEG image to provide
+ * supported. The model partially decodes the JPEG image to provide
  * context for the Huffman coded symbols.
  */
 class JpegModel {
 private:
-    static constexpr int N = 32; // number of contexts
+    static constexpr int N = 32; /**< number of contexts */
 public:
     static constexpr int MIXERINPUTS = 2 * N + 6;
     static constexpr int MIXERCONTEXTS = (1 + 8) + (1 + 1024) + 1024;
@@ -94,9 +95,9 @@ private:
     uint32_t lastPos = 0;
 
     // Huffman decode state
-    uint32_t huffcode = 0; // Current Huffman code including extra bits
-    int huffBits = 0; // Number of valid bits in huffcode
-    int huffSize = 0; // Number of bits without extra bits
+    uint32_t huffcode = 0; /**< Current Huffman code including extra bits */
+    int huffBits = 0; /**< Number of valid bits in huffcode */
+    int huffSize = 0; /**< Number of bits without extra bits */
     int rs = -1; // Decoded huffcode without extra bits.  It represents
     // 2 packed 4-bit numbers, r=run of zeros, s=number of extra bits for
     // first nonzero code.  huffcode is complete when rs >= 0.
@@ -108,17 +109,17 @@ private:
     // bits mark the block within the MCU, used to select Huffman tables.
 
     // decoding tables
-    Array<HUF> huf {128}; // Tc*64+Th*16+m -> min, max, val
-    int mcusize = 0; // number of coefficients in an MCU
-    int hufSel[2][10] {{0}}; // DC/AC, mcuPos/64 -> huf decode table
-    Array<uint8_t> hBuf {2048}; // Tc*1024+Th*256+hufCode -> RS
+    Array<HUF> huf {128}; /**< Tc*64+Th*16+m -> min, max, val */
+    int mcusize = 0; /**< number of coefficients in an MCU */
+    int hufSel[2][10] {{0}}; /**< DC/AC, mcuPos/64 -> huf decode table */
+    Array<uint8_t> hBuf {2048}; /**< Tc*1024+Th*256+hufCode -> RS */
 
     // Image state
-    Array<int> color {10}; // block -> component (0-3)
-    Array<int> pred {4}; // component -> last DC value
-    int dc = 0; // DC value of the current block
-    int width = 0; // Image width in MCU
-    int row = 0, column = 0; // in MCU (column 0 to width-1)
+    Array<int> color {10}; /**< block -> component (0-3) */
+    Array<int> pred {4}; /**< component -> last DC value */
+    int dc = 0; /**< DC value of the current block */
+    int width = 0; /**< Image width in MCU */
+    int row = 0, column = 0; /**< in MCU (column 0 to width-1) */
     RingBuffer<uint8_t> coefficientBuffer {0x20000}; // Rotating buffer of coefficients, coded as:
     // DC: level shifted absolute value, low 4 bits discarded, i.e.
     //   [-1023...1024] -> [0...255].
@@ -127,16 +128,16 @@ private:
     //   However if R=0, then the format is ssss11xx where ssss is s,
     //   xx is the first 2 extra bits, and the last 2 bits are 1 (since
     //   this never occurs in a valid RS code).
-    int cPos = 0; // position in coefficientBuffer
-    int rs1 = 0; // last RS code
-    int resetPos = 0, resetLen = 0; // reset position
+    int cPos = 0; /**< position in coefficientBuffer */
+    int rs1 = 0; /**< last RS code */
+    int resetPos = 0, resetLen = 0; /**< reset position */
     int sSum = 0, sSum1 = 0, sSum2 = 0, sSum3 = 0;
     // sum of s in RS codes in block and sum of s in first component
 
     RingBuffer<int> cBuf2 {0x20000};
     Array<int> advPred {4}, sumU {8}, sumV {8}, runPred {6};
     int prevCoef = 0, prevCoef2 = 0, prevCoefRs = 0;
-    Array<int> ls {10}; // block -> distance to previous block
+    Array<int> ls {10}; /**< block -> distance to previous block */
     Array<int> blockW {10}, blockN {10}, samplingFactors {4};
     Array<int> lcp {7}, zPos {64};
 
@@ -145,12 +146,12 @@ private:
     uint32_t dqtEnd = 0, qNum = 0;
 
     // context model
-    BH<9> t; // context hash -> bit history
+    BH<9> t; /**< context hash -> bit history */
     // As a cache optimization, the context does not include the last 1-2
     // bits of huffcode if the length (huffBits) is not a multiple of 3.
     // The 7 mapped values are for context+{"", 0, 00, 01, 1, 10, 11}.
-    Array<uint64_t> cxt {N}; // context hashes
-    Array<uint8_t *> cp {N}; // context pointers
+    Array<uint64_t> cxt {N}; /**< context hashes */
+    Array<uint8_t *> cp {N}; /**< context pointers */
     IndirectMap MJPEGMap;
     StateMap sm;
     Mixer *m1;

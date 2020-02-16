@@ -9,13 +9,13 @@
 #include "../OLS.hpp"
 #include "../SmallStationaryContextMap.hpp"
 #include "../StationaryMap.hpp"
-#include "Image24BitModel.hpp"
+#include "ImageModel.hpp"
 #include <cstdint>
 
 /**
  * Model for 8-bit image data
  */
-class Image8BitModel {
+class Image8BitModel : ImageModel {
 private:
     static constexpr int nSM0 = 2;
     static constexpr int nSM1 = 55;

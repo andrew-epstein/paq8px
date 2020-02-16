@@ -10,7 +10,7 @@
  * nx0, nx1: indexes of next DMC nodes in the state graph
  * state: bit history state - as in a contextmap
  */
-struct DMCNode { // 12 bytes
+struct DMCNode { /**< 12 bytes */
 private:
     uint32_t _nx0, _nx1; /**< packed: their higher 28 bits are nx0, nx1; the lower 4+4 bits give the bit history state byte */
 

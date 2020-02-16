@@ -3,9 +3,10 @@
 MatchModel::MatchModel(ModelStats *st, const uint64_t size) : stats(st), table(size / sizeof(uint32_t)),
         stateMaps {{1, 56 * 256,          1023, StateMap::Generic},
                    {1, 8 * 256 * 256 + 1, 1023, StateMap::Generic},
-                   {1, 256 * 256,         1023, StateMap::Generic}}, cm(shared->mem / 32, nCM, 74, CM_USE_RUN_STATS), SCM {6, 1, 6, 64},
-        maps {{23, 1, 64, 1023},
-              {15, 1, 64, 1023}}, iCtx {15, 1}, mask(uint32_t(size / sizeof(uint32_t) - 1)), hashBits(ilog2(mask + 1)) {
+                   {1, 256 * 256,         1023, StateMap::Generic}}, contextMap2(shared->mem / 32, numContextMaps, 74, CM_USE_RUN_STATS),
+        smallStationaryContextMap {6, 1, 6, 64}, stationaryMaps {{23, 1, 64, 1023},
+                                                                 {15, 1, 64, 1023}}, indirectContext {15, 1},
+        mask(uint32_t(size / sizeof(uint32_t) - 1)), hashBits(ilog2(mask + 1)) {
 #ifndef NDEBUG
   printf("Created MatchModel with size = %llu\n", size);
 #endif
@@ -101,11 +102,11 @@ void MatchModel::update() {
 void MatchModel::mix(Mixer &m) {
   update();
 
-  for( uint32_t i = 0; i < nST; i++ ) { // reset contexts
+  for( uint32_t i = 0; i < numStateMaps; i++ ) { // reset contexts
     ctx[i] = 0;
   }
 
-  const int expectedBit = length != 0 ? (expectedByte >> (7 - shared->bitPosition)) & 1U : 0;
+  const int expectedBit = length != 0U ? (expectedByte >> (7 - shared->bitPosition)) & 1U : 0U;
   if( length != 0 ) {
     if( length <= 16 ) {
       ctx[0] = (length - 1) * 2 + expectedBit; // 0..31
@@ -126,7 +127,7 @@ void MatchModel::mix(Mixer &m) {
     ctx[2] = (expectedByte << 8U) | shared->c0;
   }
 
-  for( uint32_t i = 0; i < nST; i++ ) {
+  for( uint32_t i = 0; i < numStateMaps; i++ ) {
     const uint32_t c = ctx[i];
     if( c != 0 ) {
       m.add(stretch(stateMaps[i].p1(c)) >> 1U);
@@ -150,31 +151,28 @@ void MatchModel::mix(Mixer &m) {
   //bytewise contexts
   if( shared->bitPosition == 0 ) {
     if( length != 0 ) {
-      cm.set(hash(0, expectedByte, length3Rm));
-      cm.set(hash(1, expectedByte, length3Rm, shared->c1));
+      contextMap2.set(hash(0, expectedByte, length3Rm));
+      contextMap2.set(hash(1, expectedByte, length3Rm, shared->c1));
     } else {
       // when there is no match it is still slightly beneficial not to skip(), but set some low-order contexts
-      cm.set(hash(2, shared->c4 & 0xffu)); // order 1
-      cm.set(hash(3, shared->c4 & 0xffffu)); // order 2
-      //cm.skip();
-      //cm.skip();
+      contextMap2.set(hash(2, shared->c4 & 0xffu)); // order 1
+      contextMap2.set(hash(3, shared->c4 & 0xffffu)); // order 2
     }
   }
-  cm.mix(m);
+  contextMap2.mix(m);
 
   //bitwise contexts
   {
-    maps[0].set(hash(expectedByte, shared->c0, shared->c4 & 0xffffu, length3Rm));
-    INJECT_SHARED_y
-    iCtx += y;
+    stationaryMaps[0].set(hash(expectedByte, shared->c0, shared->c4 & 0xffffu, length3Rm));
+    indirectContext += shared->y;
     const uint8_t c = length3Rm << 1U | expectedBit; // 4 bits
-    iCtx = (shared->bitPosition << 11U) | (shared->c1 << 3U) | c;
-    maps[1].setDirect(iCtx());
-    SCM.set((shared->bitPosition << 3U) | c);
+    indirectContext = (shared->bitPosition << 11U) | (shared->c1 << 3U) | c;
+    stationaryMaps[1].setDirect(indirectContext());
+    smallStationaryContextMap.set((shared->bitPosition << 3U) | c);
   }
-  maps[0].mix(m);
-  maps[1].mix(m);
-  SCM.mix(m);
+  stationaryMaps[0].mix(m);
+  stationaryMaps[1].mix(m);
+  smallStationaryContextMap.mix(m);
 
   const uint32_t lengthC = lengthIlog2 != 0 ? lengthIlog2 + 1 : static_cast<unsigned int>(delta);
   //no match, no delta mode:   lengthC=0

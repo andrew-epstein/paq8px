@@ -248,7 +248,9 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
 
     // detect PNG images
     if((png == 0) && buf3 == 0x89504E47 /*%PNG*/ && buf2 == 0x0D0A1A0A && buf1 == 0x0000000D && buf0 == 0x49484452 ) {
-      png = i, pngType = -1, lastChunk = buf3;
+      png = i;
+      pngType = -1;
+      lastChunk = buf3;
     }
     if( png != 0 ) {
       const int p = i - png;
@@ -279,14 +281,16 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
     // ZLIB stream detection
 #ifdef USE_ZLIB
     histogram[c]++;
-    if( i >= 256 )
+    if( i >= 256 ) {
       histogram[zBuf[zBufPos]]--;
+    }
     zBuf[zBufPos] = c;
-    if( zBufPos < 32 )
+    if( zBufPos < 32 ) {
       zBuf[zBufPos + 256] = c;
+    }
     zBufPos = (zBufPos + 1) & 0xFF;
 
-    int zh = parseZlibHeader(((int) zBuf[(zBufPos - 32) & 0xFF]) * 256 + (int) zBuf[(zBufPos - 32 + 1) & 0xFF]);
+    int zh = ZlibFilter::parseZlibHeader(((int) zBuf[(zBufPos - 32) & 0xFF]) * 256 + (int) zBuf[(zBufPos - 32 + 1) & 0xFF]);
     bool valid = (i >= 31 && zh != -1);
     if( !valid && shared->options & OPTION_BRUTE && i >= 255 ) {
       uint8_t bType = (zBuf[zBufPos] & 7) >> 1;
@@ -315,7 +319,7 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
       strm.opaque = Z_NULL;
       strm.next_in = Z_NULL;
       strm.avail_in = 0;
-      if( zlibInflateInit(&strm, zh) == Z_OK ) {
+      if( ZlibFilter::zlibInflateInit(&strm, zh) == Z_OK ) {
         strm.next_in = &zBuf[(zBufPos - (brute ? 0 : 32)) & 0xFF];
         strm.avail_in = 32;
         strm.next_out = zout;
@@ -332,7 +336,7 @@ static auto detect(File *in, uint64_t blockSize, BlockType type, int &info) -> B
         strm.next_in = Z_NULL;
         strm.avail_in = 0;
         strm.total_in = strm.total_out = 0;
-        if( zlibInflateInit(&strm, zh) == Z_OK ) {
+        if( ZlibFilter::zlibInflateInit(&strm, zh) == Z_OK ) {
           for( int j = i - (brute ? 255 : 31); j < n; j += 1 << 16 ) {
             unsigned int blsize = min(n - j, 1 << 16);
             in->setpos(start + j);
@@ -1259,7 +1263,10 @@ decodeFunc(BlockType type, Encoder &en, File *tmp, uint64_t len, int info, File 
     return b->decode(tmp, out, mode, len, diffFound);
   }
   if( type == IMAGE32 ) {
-    return decodeIm32(en, len, info, out, mode, diffFound);
+    auto i = new Im32Filter();
+    i->setWidth(info);
+    i->setEncoder(en);
+    return i->decode(tmp, out, mode, len, diffFound);
   }
   if( type == AUDIO_LE ) {
     auto e = new EndiannessFilter();
@@ -1278,19 +1285,23 @@ decodeFunc(BlockType type, Encoder &en, File *tmp, uint64_t len, int info, File 
     c->decode(tmp, out, mode, len, diffFound);
   }
 #ifdef USE_ZLIB
-  else if( type == ZLIB )
-    return decodeZlib(tmp, len, out, mode, diffFound);
+  else if( type == ZLIB ) {
+    auto z = new ZlibFilter();
+    return z->decode(tmp, out, mode, len, diffFound);
+  }
 #endif //USE_ZLIB
   else if( type == BASE64 ) {
     auto b = new Base64Filter();
     return b->decode(tmp, out, mode, len, diffFound);
   } else if( type == GIF ) {
-    return decodeGif(tmp, len, out, mode, diffFound);
+    auto g = new GifFilter();
+    return g->decode(tmp, out, mode, len, diffFound);
   } else if( type == RLE ) {
     auto r = new RleFilter();
     return r->decode(tmp, out, mode, len, diffFound);
   } else if( type == LZW ) {
-    return decodeLzw(tmp, out, mode, diffFound);
+    auto l = new LZWFilter();
+    return l->decode(tmp, out, mode, len, diffFound);
   } else {
     assert(false);
   }
@@ -1302,7 +1313,8 @@ static auto encodeFunc(BlockType type, File *in, File *tmp, uint64_t len, int in
     auto b = new BmpFilter();
     b->encode(in, tmp, len, info, hdrsize);
   } else if( type == IMAGE32 ) {
-    encodeIm32(in, tmp, len, info);
+    auto i = new Im32Filter();
+    i->encode(in, tmp, len, info, hdrsize);
   } else if( type == AUDIO_LE ) {
     auto e = new EndiannessFilter();
     e->encode(in, tmp, len, info, hdrsize);
@@ -1317,19 +1329,23 @@ static auto encodeFunc(BlockType type, File *in, File *tmp, uint64_t len, int in
     c->encode(in, tmp, len, info, hdrsize);
   }
 #ifdef USE_ZLIB
-  else if( type == ZLIB )
-    return encodeZlib(in, tmp, len, hdrsize) ? 0 : 1;
+  else if( type == ZLIB ) {
+    auto z = new ZlibFilter();
+    return z->encode(in, tmp, len, info, hdrsize) ? 0 : 1;
+  }
 #endif //USE_ZLIB
   else if( type == BASE64 ) {
     auto b = new Base64Filter();
     b->encode(in, tmp, len, info, hdrsize);
   } else if( type == GIF ) {
-    return encodeGif(in, tmp, len, hdrsize) != 0 ? 0 : 1;
+    auto g = new GifFilter();
+    return g->encode(in, tmp, len, info, hdrsize) != 0 ? 0 : 1;
   } else if( type == RLE ) {
     auto r = new RleFilter();
     r->encode(in, tmp, len, info, hdrsize);
   } else if( type == LZW ) {
-    return encodeLzw(in, tmp, len, hdrsize) != 0 ? 0 : 1;
+    auto l = new LZWFilter();
+    return l->encode(in, tmp, len, info, hdrsize) != 0 ? 0 : 1;
   } else {
     assert(false);
   }

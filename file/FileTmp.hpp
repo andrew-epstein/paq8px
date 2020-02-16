@@ -21,12 +21,12 @@ private:
     void forgetFileOnDisk();
 
 #ifdef NDEBUG
-    static constexpr uint32_t MAX_RAM_FOR_TMP_CONTENT = 64 * 1024 * 1024; //64 MB (per file)
+    static constexpr uint32_t MAX_RAM_FOR_TMP_CONTENT = 64 * 1024 * 1024; /**< 64 MB (per file) */
 #else
     static constexpr uint32_t MAX_RAM_FOR_TMP_CONTENT = 64; // to trigger switching to disk earlier - for testing
 #endif
     /**
-     * switch: ram->disk
+     * Switch: ram->disk
      */
     void ramToDisk();
 public:

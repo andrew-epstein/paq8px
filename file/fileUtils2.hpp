@@ -1,3 +1,6 @@
+/**
+ * @todo remove the need for this file
+ */
 #ifndef PAQ8PX_FILEUTILS2_HPP
 #define PAQ8PX_FILEUTILS2_HPP
 

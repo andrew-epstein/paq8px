@@ -44,7 +44,7 @@ private:
     }
 
 public:
-    void encode(File *in, File *out, uint64_t size, int  /*info*/, int & /*headerSize*/) override {
+    int encode(File *in, File *out, uint64_t size, int  /*info*/, int & /*headerSize*/) override {
       uint64_t inLen = 0;
       int i = 0;
       int b = 0;
@@ -113,6 +113,7 @@ public:
         ptr[4] = (size >> 24U) & 63U; //1100 0000
       }
       out->blockWrite(&ptr[0], olen);
+      return 1;
     }
 
     auto decode(File *in, File *out, FMode fMode, uint64_t /*size*/, uint64_t &diffFound) -> uint64_t override {

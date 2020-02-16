@@ -1,11 +1,11 @@
 #ifndef PAQ8PX_INFO_HPP
 #define PAQ8PX_INFO_HPP
 
-
 #include "../Shared.hpp"
 #include "../ContextMap2.hpp"
 #include "../ModelStats.hpp"
 #include <cstdint>
+#include <cctype>
 
 /**
  * Used by @ref WordModel.

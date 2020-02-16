@@ -20,7 +20,7 @@ public:
       width = w;
     }
 
-    void encode(File *in, File *out, uint64_t size, int width, int & /*headerSize*/) override {
+    int encode(File *in, File *out, uint64_t size, int width, int & /*headerSize*/) override {
       Shared *shared = Shared::getInstance();
       uint32_t r = 0;
       uint32_t g = 0;
@@ -55,6 +55,7 @@ public:
       for( int i = size % width; i > 0; i-- ) {
         out->putChar(in->getchar());
       }
+      return 1;
     }
 
     auto decode(File * /*in*/, File *out, FMode fMode, uint64_t size, uint64_t &diffFound) -> uint64_t override {

@@ -92,7 +92,7 @@ public:
       return fMode + form - 1;
     }
 
-    void encode(File *in, File *out, uint64_t size, int info, int & /*headerSize*/) override {
+    int encode(File *in, File *out, uint64_t size, int info, int & /*headerSize*/) override {
       const int block = 2352;
       uint8_t blk[block];
       uint64_t blockResidual = size % block;
@@ -119,6 +119,7 @@ public:
           }
         }
       }
+      return 1;
     }
 
     /**

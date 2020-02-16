@@ -5,7 +5,7 @@
 
 class Sentence : public Segment {
 public:
-    enum Types { // possible sentence types, excluding Imperative
+    enum Types { /**< possible sentence types, excluding Imperative */
         Declarative, Interrogative, Exclamative, Count
     };
     Types type;

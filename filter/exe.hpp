@@ -28,7 +28,7 @@ public:
      * @param size
      * @param info
      */
-    void encode(File *in, File *out, uint64_t size, int info, int &headerSize) override {
+    int encode(File *in, File *out, uint64_t size, int info, int &headerSize) override {
       Array<uint8_t> blk(block);
       out->putVLI(info);
 
@@ -53,6 +53,7 @@ public:
         }
         out->blockWrite(&blk[0], bytesRead);
       }
+      return 1;
     }
 
     /**

@@ -17,7 +17,7 @@ private:
     uint8_t prd[nSSM] {0};
 
 public:
-    static constexpr int MIXERINPUTS = nSSM * SmallStationaryContextMap::MIXERINPUTS; // 10
+    static constexpr int MIXERINPUTS = nSSM * SmallStationaryContextMap::MIXERINPUTS; /**< 10 */
     static constexpr int MIXERCONTEXTS = 0;
     static constexpr int MIXERCONTEXTSETS = 0;
     LinearPredictionModel();

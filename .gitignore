@@ -16,3 +16,4 @@ paq8pxd
 train_bench
 afl-in
 afl-out
+*.swp

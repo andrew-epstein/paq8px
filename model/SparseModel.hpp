@@ -10,7 +10,8 @@
 /**
  * Model order 1-2-3 contexts with gaps.
  */
-class SparseModel {
+class
+SparseModel {
 private:
     static constexpr int nCM = 38; //17+3*7
     Shared *shared = Shared::getInstance();

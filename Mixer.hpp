@@ -107,6 +107,8 @@ static auto dotProductSimdNone(const short *const t, const short *const w, int n
 }
 
 static void trainSimdNone(const short *const t, short *const w, int n, const int err) {
+//  printf("%p ", w);
+//  auto len = n;
   while((n -= 1) >= 0 ) {
     int wt = w[n] + ((((t[n] * err * 2) >> 16U) + 1) >> 1U);
     if( wt < -32768 ) {
@@ -116,6 +118,10 @@ static void trainSimdNone(const short *const t, short *const w, int n, const int
     }
     w[n] = static_cast<short>(wt);
   }
+//  for(int i = 0; i < len; ++i){
+//    printf("%d ", w[i]);
+//  }
+//  printf("\n");
 }
 
 class Mixer : protected IPredictor {
@@ -128,9 +134,9 @@ protected:
     Array<short, 32> tx; /**< n inputs from add() */
     Array<short, 32> wx; /**< n*m weights */
     Array<uint32_t> cxt; /**< s contexts */
-    Array<ErrorInfo> info; /**< stats for the adaptive learning rates  */
+    Array<ErrorInfo> info; /**< stats for the adaptive learning rates */
     Array<int> rates; /**< learning rates */
-    uint32_t numContexts {}; /**< number of contexts (0 to s)  */
+    uint32_t numContexts {}; /**< number of contexts (0 to s) */
     uint32_t base {}; /**< offset of next context */
     uint32_t nx {}; /**< number of inputs in tx, 0 to n */
     Array<int> pr; /**< last result (scaled 12 bits) */

@@ -20,11 +20,11 @@ private:
     StateMap smOrder0Slow;
     StateMap smOrder1Slow;
     StateMap smOrder1Fast;
-    uint64_t cxt[15] {}; // context hashes
+    uint64_t cxt[15] {}; /**< context hashes */
 public:
     static constexpr int MIXERINPUTS =
-            nCM * (ContextMap2::MIXERINPUTS + ContextMap2::MIXERINPUTS_RUN_STATS + ContextMap2::MIXERINPUTS_BYTE_HISTORY) + nSM; //66
-    static constexpr int MIXERCONTEXTS = 64 + 8 + 1024 + 256 + 256 + 256 + 256 + 1536; //3656
+            nCM * (ContextMap2::MIXERINPUTS + ContextMap2::MIXERINPUTS_RUN_STATS + ContextMap2::MIXERINPUTS_BYTE_HISTORY) + nSM; /**< 66 */
+    static constexpr int MIXERCONTEXTS = 64 + 8 + 1024 + 256 + 256 + 256 + 256 + 1536; /**< 3656 */
     static constexpr int MIXERCONTEXTSETS = 7;
     NormalModel(ModelStats *st, uint64_t cmSize);
     void reset();

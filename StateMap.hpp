@@ -47,7 +47,7 @@ public:
      * sm.p(y, cx, limit) converts state @ref cx (0..n-1) to a probability (0..4095)
      * that the next y=1, updating the previous prediction with y (0..1).
      * limit (1..1023, default 1023) is the maximum count for computing a
-     * prediction.  Larger values are better for stationary sources.
+     * prediction. Larger values are better for stationary sources.
      * @param s
      * @param cx
      * @return

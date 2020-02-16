@@ -23,7 +23,7 @@ private:
     IndirectContext<uint32_t> iCtx {16, 8};
 
 public:
-    static constexpr int MIXERINPUTS = nCM * (ContextMap::MIXERINPUTS); // 75
+    static constexpr int MIXERINPUTS = nCM * (ContextMap::MIXERINPUTS); /**< 75 */
     static constexpr int MIXERCONTEXTS = 0;
     static constexpr int MIXERCONTEXTSETS = 0;
     explicit IndirectModel(uint64_t size);

@@ -1,7 +1,7 @@
 #ifndef PAQ8PX_LZWENTRY_HPP
 #define PAQ8PX_LZWENTRY_HPP
 
-struct LZWentry {
+struct LzWentry {
     short prefix;
     short suffix;
 };
