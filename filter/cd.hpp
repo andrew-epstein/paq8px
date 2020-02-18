@@ -2,7 +2,7 @@
 #define PAQ8PX_CD_HPP
 
 #include "Filter.hpp"
-#include "ecc.hpp"
+#include "Ecc.hpp"
 
 /**
  * @todo Large file support
@@ -10,8 +10,8 @@
 class CdFilter : Filter {
 public:
     static auto expandCdSector(uint8_t *data, int address, int test) -> int {
+      constexpr static auto ecc = Ecc();
       uint8_t d2[2352];
-      eccedcInit();
       //sync pattern: 00 FF FF FF FF FF FF FF FF FF FF 00
       d2[0] = d2[11] = 0;
       for( int i = 1; i < 11; i++ ) {
@@ -58,12 +58,12 @@ public:
         for( int i = 16 + 8 * static_cast<int>(fMode == 2); i < 2064 + 8 * static_cast<int>(fMode == 2); i++ ) {
           d2[i] = data[i]; //data bytes
         }
-        uint32_t edc = edcCompute(d2 + 16 * static_cast<int>(fMode == 2), 2064 - 8 * static_cast<int>(fMode == 2));
+        uint32_t edc = ecc.edcCompute(d2 + 16 * static_cast<int>(fMode == 2), 2064 - 8 * static_cast<int>(fMode == 2));
         for( int i = 0; i < 4; i++ ) {
           d2[2064 + 8 * static_cast<int>(fMode == 2) + i] = (edc >> (8 * i)) & 0xffU;
         }
-        eccCompute(d2 + 12, 86, 24, 2, 86, d2 + 2076);
-        eccCompute(d2 + 12, 52, 43, 86, 88, d2 + 2248);
+        ecc.eccCompute(d2 + 12, 86, 24, 2, 86, d2 + 2076);
+        ecc.eccCompute(d2 + 12, 52, 43, 86, 88, d2 + 2248);
         if( fMode == 2 ) {
           d2[12] = d2[1], d2[13] = d2[2], d2[14] = d2[3], d2[15] = 2;
           d2[1] = d2[2] = d2[3] = 255;
@@ -78,7 +78,7 @@ public:
         for( int i = 24; i < 2348; i++ ) {
           d2[i] = data[i]; //data bytes
         }
-        uint32_t edc = edcCompute(d2 + 16, 2332);
+        uint32_t edc = ecc.edcCompute(d2 + 16, 2332);
         for( int i = 0; i < 4; i++ ) {
           d2[2348 + i] = (edc >> (8 * i)) & 0xffu; //EDC
         }

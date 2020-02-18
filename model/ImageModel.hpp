@@ -1,6 +1,8 @@
 #ifndef PAQ8PX_IMAGEMODEL_HPP
 #define PAQ8PX_IMAGEMODEL_HPP
 
+#include <cstdint>
+
 class ImageModel {
 public:
     static inline auto paeth(uint8_t const W, uint8_t const N, uint8_t const NW) -> uint8_t {

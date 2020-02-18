@@ -12,7 +12,7 @@
 #include "TextParserStateInfo.hpp"
 #include "base64.hpp"
 #include "cd.hpp"
-#include "ecc.hpp"
+#include "Ecc.hpp"
 #include "gif.hpp"
 #include "lzw.hpp"
 #include <cctype>
